@@ -1,12 +1,27 @@
 import { Component } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/angular/standalone';
+import { IonicModule, NavController } from '@ionic/angular';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent],
+  standalone: true,
+  imports: [IonicModule, FormsModule, CommonModule],
 })
 export class HomePage {
-  constructor() {}
+  tableNumber: string = '';
+  userName: string = '';
+
+  constructor(private navCtrl: NavController) {}
+
+  login() {
+    if (this.tableNumber && this.userName) {
+      // Salviamo i dati nel browser per ricordarli durante l'ordine
+      localStorage.setItem('table', this.tableNumber);
+      localStorage.setItem('user', this.userName);
+      this.navCtrl.navigateForward('/menu');
+    }
+  }
 }

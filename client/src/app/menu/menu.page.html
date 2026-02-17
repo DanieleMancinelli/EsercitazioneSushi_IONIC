@@ -1,0 +1,24 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-title>Menù Sushi</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngFor="let cat of categories">
+    <ion-list-header>
+      <ion-label style="font-size: 1.5em; color: darkred;">{{ cat.name }}</ion-label>
+    </ion-list-header>
+
+    <ion-card *ngFor="let p of getProductsByCategory(cat.id)">
+      <img [src]="p.image_url" style="height: 200px; width: 100%; object-fit: cover;" />
+      <ion-card-header>
+        <ion-card-title>{{ p.name }}</ion-card-title>
+        <ion-card-subtitle>{{ p.price | currency:'EUR' }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-button fill="outline" color="danger" expand="block">Aggiungi</ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

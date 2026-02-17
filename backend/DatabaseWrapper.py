@@ -38,15 +38,12 @@ class DatabaseWrapper:
             conn.close()
 
     def create_tables(self):
-        # Tabella Categorie (es. Nigiri, Bibite)
         self.execute_query('''
             CREATE TABLE IF NOT EXISTS categories (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 name VARCHAR(100) NOT NULL UNIQUE
             )
         ''')
-        
-        # Tabella Prodotti
         self.execute_query('''
             CREATE TABLE IF NOT EXISTS products (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -57,8 +54,6 @@ class DatabaseWrapper:
                 FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
             )
         ''')
-        
-        # Tabella Ordini (Comande)
         self.execute_query('''
             CREATE TABLE IF NOT EXISTS orders (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -68,8 +63,6 @@ class DatabaseWrapper:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
-        
-        # Tabella Dettaglio Ordine (Piatti specifici ordinati)
         self.execute_query('''
             CREATE TABLE IF NOT EXISTS order_items (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -81,13 +74,14 @@ class DatabaseWrapper:
             )
         ''')
 
-    # Metodi che verranno usati dalle API (Senza SQL in app.py)
-    def get_all_categories(self):
+    # --- METODI PER IL MENU ---
+    def get_categories(self):
         return self.fetch_query("SELECT * FROM categories")
 
-    def get_all_products(self):
+    def get_products(self):
         return self.fetch_query("SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id")
 
+    # --- METODI PER GLI ORDINI ---
     def add_order(self, table_number, user_name):
         query = "INSERT INTO orders (table_number, user_name) VALUES (%s, %s)"
         conn = self.connect()
@@ -95,7 +89,25 @@ class DatabaseWrapper:
             with conn.cursor() as cursor:
                 cursor.execute(query, (table_number, user_name))
                 conn.commit()
-                return cursor.lastrowid # Ci servirà per sapere a quale ordine aggiungere i piatti
+                return cursor.lastrowid
         finally:
             conn.close()
 
+    def add_order_item(self, order_id, product_id, quantity):
+        query = "INSERT INTO order_items (order_id, product_id, quantity) VALUES (%s, %s, %s)"
+        self.execute_query(query, (order_id, product_id, quantity))
+
+    def get_orders_staff(self):
+        # Ritorna gli ordini con i dettagli dei piatti
+        return self.fetch_query('''
+            SELECT o.*, GROUP_CONCAT(CONCAT(p.name, ' x', oi.quantity) SEPARATOR ', ') as details
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p ON oi.product_id = p.id
+            GROUP BY o.id
+            ORDER BY o.created_at DESC
+        ''')
+
+    def update_order_status(self, order_id, status):
+        query = "UPDATE orders SET status = %s WHERE id = %s"
+        self.execute_query(query, (status, order_id))

@@ -1,0 +1,13 @@
+# Backend
+backend/.env
+backend/__pycache__/
+
+# Frontend (Staff & Client)
+**/node_modules/
+**/dist/
+**/.angular/
+**/.ionic/
+**/www/
+
+# System
+.DS_Store

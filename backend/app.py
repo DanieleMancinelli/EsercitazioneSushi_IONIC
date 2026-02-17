@@ -37,5 +37,12 @@ def update_status(order_id):
     db.update_order_status(order_id, new_status)
     return jsonify({"message": "Stato aggiornato"})
 
+@app.route('/orders/status', methods=['GET'])
+def get_order_status():
+    table = request.args.get('table')
+    user = request.args.get('user')
+    orders = db.get_user_orders(table, user)
+    return jsonify(orders)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

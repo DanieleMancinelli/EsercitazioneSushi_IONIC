@@ -111,3 +111,11 @@ class DatabaseWrapper:
     def update_order_status(self, order_id, status):
         query = "UPDATE orders SET status = %s WHERE id = %s"
         self.execute_query(query, (status, order_id))
+
+    def get_user_orders(self, table_number, user_name):
+        return self.fetch_query('''
+            SELECT id, status, created_at 
+            FROM orders 
+            WHERE table_number = %s AND user_name = %s
+            ORDER BY created_at DESC
+        ''', (table_number, user_name))

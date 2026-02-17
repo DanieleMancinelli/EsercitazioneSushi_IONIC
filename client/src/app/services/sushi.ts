@@ -18,4 +18,8 @@ export class SushiService {
   sendOrder(order: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/orders`, order);
   }
+
+  getOrderStatus(table: string, user: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/orders/status?table=${table}&user=${user}`);
+  }
 }
